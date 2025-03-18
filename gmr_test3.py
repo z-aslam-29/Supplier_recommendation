@@ -350,7 +350,7 @@ def generate_supplier_insights(supplier_data, all_suppliers_data):
 st.title("Supplier Recommendation Agent")
 
 # Hardcoded file path - replace with your actual path
-file_path = r"C:\Users\shaik\Downloads\AI ML POC data_22 Jan1\AI ML POC data_22 Jan1\Data\ME2N jan_dec.xlsb"  
+file_path = r"ME2N jan_dec.xlsb"  
 
 with st.spinner("Loading data..."):
     df = load_data(file_path)
