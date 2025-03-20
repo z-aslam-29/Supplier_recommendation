@@ -204,7 +204,7 @@ def find_and_analyze_suppliers(df, query, top_n=5):
             'Price Consistency': price_consistency * 100,  # Convert to percentage
             'Price Trend': price_trend,
             'Delivery Date': delivery_dates_str,  # Include delivery dates
-            #'Currencies Used': currencies_str,
+            #'Supplier Rank': supplier_rank,
             'Original Currency': original_currency,  # Add original currency
             'Most Recent Date': most_recent_date  # Add most recent date for scoring
         })
@@ -288,6 +288,9 @@ def generate_supplier_insights(supplier_data, all_suppliers_data):
     """Generate insights about a specific supplier compared to others"""
     insights = {}
     
+    # Sort the suppliers by Score(%) in descending order and reset the index
+    all_suppliers_data = all_suppliers_data.sort_values(by='Score(%)', ascending=False).reset_index(drop=True)
+    
     # Extract data
     supplier_name = supplier_data['Vendor/Supplying Plant']
     avg_price = supplier_data['Avg Price (INR)']
@@ -339,12 +342,15 @@ def generate_supplier_insights(supplier_data, all_suppliers_data):
     # Overall recommendation
     top_supplier = all_suppliers_data.iloc[0]['Vendor/Supplying Plant']
     if supplier_name == top_supplier:
-        insights['recommendation'] = "This is the top-recommended supplier based on our comprehensive analysis of price, delivery time, consistency and past experience."
+        insights['recommendation'] = "This is the top #1 recommended supplier based on our comprehensive analysis of price, delivery time, consistency and past experience."
+        supplier_rank = 1
     else:
-        supplier_rank = all_suppliers_data[all_suppliers_data['Vendor/Supplying Plant'] == supplier_name].index[0] + 1
+        # Calculate the rank based on the sorted index
+        supplier_rank = all_suppliers_data.index[all_suppliers_data['Vendor/Supplying Plant'] == supplier_name].tolist()[0] + 1
         insights['recommendation'] = f"This supplier ranks #{supplier_rank} in our analysis. While not the top recommendation, they may have specific strengths that suit your current needs."
     
-    return insights
+    # Return insights and supplier_rank
+    return insights, supplier_rank
 
 # Streamlit UI
 st.title("Supplier Recommendation Agent")
@@ -432,7 +438,7 @@ if query:
                 selected_supplier_data = aggregated_results[aggregated_results['Vendor/Supplying Plant'] == selected_supplier].iloc[0]
                 
                 # Generate insights about the selected supplier
-                insights = generate_supplier_insights(selected_supplier_data, aggregated_results)
+                insights, supplier_rank = generate_supplier_insights(selected_supplier_data, aggregated_results)
                 
                 # Display supplier insights in a nicely formatted card
                 st.subheader(f"Insights for {selected_supplier}")
@@ -472,6 +478,12 @@ if query:
                             f"{selected_supplier_data['Avg Due Days']:.1f}"
                         )
 
+                    with metric_cols[1]:
+                        st.metric(
+                            "Supplier Rank", 
+                            f"{supplier_rank}"
+                        )
+
                     with metric_cols[2]:
                         st.metric(
                             "Total Quantity", 
@@ -487,9 +499,9 @@ if query:
                     with metric_cols[0]:
                         st.metric(
                             "Total Orders", 
-                            f"{selected_supplier_data['Order Count']:.2f}"
+                            f"{selected_supplier_data['Order Count']}"
                         )
-                
+                    
                 # Show JSON output for developers
                 with st.expander("JSON Output"):
                     st.subheader("JSON Data")
