@@ -352,6 +352,7 @@ def generate_supplier_insights(supplier_data, all_suppliers_data):
     # Return insights and supplier_rank
     return insights, supplier_rank
 
+
 # Streamlit UI
 st.title("Supplier Recommendation Agent")
 
@@ -440,7 +441,47 @@ if query:
                 # Generate insights about the selected supplier
                 insights, supplier_rank = generate_supplier_insights(selected_supplier_data, aggregated_results)
                 
-                # Display supplier insights in a nicely formatted card
+                # Display detailed metrics directly
+                st.subheader(f"Detailed Metrics for {selected_supplier}")
+                metric_cols = st.columns(4)
+                
+                with metric_cols[0]:
+                    st.metric(
+                        "Average Price (INR)", 
+                        f"{selected_supplier_data['Avg Price (INR)']:.2f}"
+                    )
+                
+                with metric_cols[1]:
+                    st.metric(
+                        "Due days", 
+                        f"{selected_supplier_data['Avg Due Days']:.1f}"
+                    )
+
+                with metric_cols[1]:
+                    st.metric(
+                        "Supplier Rank", 
+                        f"#{supplier_rank}"
+                    )
+
+                with metric_cols[2]:
+                    st.metric(
+                        "Total Quantity", 
+                        f"{selected_supplier_data['Total Quantity']:.1f}"
+                    )
+                
+                with metric_cols[3]:
+                    st.metric(
+                        "Price Consistency", 
+                        f"{selected_supplier_data['Price Consistency']:.1f}%"
+                    )
+                
+                with metric_cols[0]:
+                    st.metric(
+                        "Total Orders", 
+                        f"{selected_supplier_data['Order Count']}"
+                    )
+                
+                # Display insights
                 st.subheader(f"Insights for {selected_supplier}")
                 
                 col1, col2 = st.columns(2)
@@ -459,49 +500,10 @@ if query:
                     st.markdown("### Experience")
                     st.markdown(insights['experience'])
                 
+                # Display recommendation
                 st.markdown("### Recommendation")
                 st.markdown(f"**{insights['recommendation']}**")
                 
-                # Additional metrics in expander
-                with st.expander("View Detailed Metrics"):
-                    metric_cols = st.columns(4)
-                    
-                    with metric_cols[0]:
-                        st.metric(
-                            "Average Price (INR)", 
-                            f"{selected_supplier_data['Avg Price (INR)']:.2f}"
-                        )
-                    
-                    with metric_cols[1]:
-                        st.metric(
-                            "Due days", 
-                            f"{selected_supplier_data['Avg Due Days']:.1f}"
-                        )
-
-                    with metric_cols[1]:
-                        st.metric(
-                            "Supplier Rank", 
-                            f"{supplier_rank}"
-                        )
-
-                    with metric_cols[2]:
-                        st.metric(
-                            "Total Quantity", 
-                            f"{selected_supplier_data['Total Quantity']:.1f}"
-                        )
-                    
-                    with metric_cols[3]:
-                        st.metric(
-                            "Price Consistency", 
-                            f"{selected_supplier_data['Price Consistency']:.1f}%"
-                        )
-                    
-                    with metric_cols[0]:
-                        st.metric(
-                            "Total Orders", 
-                            f"{selected_supplier_data['Order Count']}"
-                        )
-                    
                 # Show JSON output for developers
                 with st.expander("JSON Output"):
                     st.subheader("JSON Data")
