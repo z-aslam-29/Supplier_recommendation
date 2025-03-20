@@ -405,7 +405,7 @@ if query:
                 display_cols = ['Vendor/Supplying Plant', 'Total Quantity', 'OUn', 'Avg Price (INR)', 'Avg Price (Original Currency)',
                                'Total Value (INR)', 'Total Value (Original Currency)','Original Currency', 'Avg Due Days', 'Order Count', 
                                'Price Consistency', 'Score(%)']
-                st.dataframe(aggregated_results[display_cols])
+                st.dataframe(aggregated_results[display_cols],hide_index=True)
                 
                 # Check for unbalanced purchase history
                 order_counts = aggregated_results['Order Count'].tolist()
@@ -420,7 +420,7 @@ if query:
                         display_transaction_cols = ['Vendor/Supplying Plant', 'Purchase Doc', 'Quantity', 'OUn',
                                                    'Original Currency', 'Original Net Price', 'Original Net Value',
                                                    'Net Price INR', 'Net Value INR', 'Due Days', 'Delivery Date']
-                        st.dataframe(all_transactions[display_transaction_cols])
+                        st.dataframe(all_transactions[display_transaction_cols],hide_index=True)
                 
                 # New section - Allow user to select a supplier
                 st.subheader("Select a Supplier for Detailed Analysis")
