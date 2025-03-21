@@ -83,6 +83,7 @@ def preprocess_data(df):
 def find_similar_products(df, query, top_n=5):
     """
     Find products similar to the user's query using TF-IDF + Cosine Similarity.
+    Ensures that the returned products have a similarity score greater than 0.00.
     """
     # Get unique product descriptions
     product_descriptions = df['Short Text'].unique()
@@ -99,11 +100,20 @@ def find_similar_products(df, query, top_n=5):
     # Calculate cosine similarity between query and product descriptions
     cosine_similarities = cosine_similarity(query_vector, tfidf_matrix).flatten()
     
-    # Get the indices of the top N most similar products
-    top_indices = cosine_similarities.argsort()[-top_n:][::-1]
+    # Filter out products with a similarity score of 0.00
+    filtered_indices = [i for i, score in enumerate(cosine_similarities) if score > 0.00]
+    filtered_scores = [cosine_similarities[i] for i in filtered_indices]
+    filtered_descriptions = [product_descriptions[i] for i in filtered_indices]
+    
+    # If no products meet the minimum score, return an empty list
+    if not filtered_indices:
+        return []
+    
+    # Get the indices of the top N most similar products from the filtered list
+    top_indices = np.argsort(filtered_scores)[-top_n:][::-1]
     
     # Return the matched products and their similarity scores
-    matches = [(product_descriptions[i], cosine_similarities[i]) for i in top_indices]
+    matches = [(filtered_descriptions[i], filtered_scores[i]) for i in top_indices]
     
     return matches
 
